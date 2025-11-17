@@ -35,7 +35,7 @@ class DatabaseManager:
         """
         self.data_dir = data_dir
         self.employees_file = os.path.join(data_dir, "employees.json")
-        self.absences_file = os.path.join(data_dir, "absences.json")
+        self.afastamentos_file = os.path.join(data_dir, "absences.json") # Renomeado para compatibilidade com o código do usuário
         self.users_file = os.path.join(data_dir, "users.json")
         
         # Criar diretório de dados se não existir
@@ -68,7 +68,7 @@ class DatabaseManager:
     # MÉTODOS AUXILIARES DE ARQUIVO
     # ========================================================================
     
-    def _load_json(self, filepath: str) -> List[Dict[str, Any]]:
+    def load_json(self, filepath: str) -> List[Dict[str, Any]]:
         """
         Carrega dados de um arquivo JSON.
         
@@ -84,7 +84,7 @@ class DatabaseManager:
         except (FileNotFoundError, json.JSONDecodeError):
             return []
     
-    def _save_json(self, filepath: str, data: List[Dict[str, Any]]) -> None:
+    def save_json(self, filepath: str, data: List[Dict[str, Any]]) -> None:
         """
         Salva dados em um arquivo JSON.
         
@@ -123,7 +123,7 @@ class DatabaseManager:
         Returns:
             ID do funcionário criado
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         
         # Gerar novo ID
         new_id = self._generate_id(employees)
@@ -135,7 +135,7 @@ class DatabaseManager:
         
         # Adicionar à lista e salvar
         employees.append(employee_data)
-        self._save_json(self.employees_file, employees)
+        self.save_json(self.employees_file, employees)
         
         return new_id
     
@@ -149,7 +149,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do funcionário ou None se não encontrado
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         
         for employee in employees:
             if employee.get('id') == employee_id:
@@ -164,7 +164,7 @@ class DatabaseManager:
         Returns:
             Lista de dicionários com dados dos funcionários
         """
-        return self._load_json(self.employees_file)
+        return self.load_json(self.employees_file)
     
     def update_employee(self, employee_id: int, employee_data: Dict[str, Any]) -> bool:
         """
@@ -177,7 +177,7 @@ class DatabaseManager:
         Returns:
             True se atualizado com sucesso, False caso contrário
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         
         for i, employee in enumerate(employees):
             if employee.get('id') == employee_id:
@@ -188,7 +188,7 @@ class DatabaseManager:
                 
                 # Atualizar funcionário
                 employees[i] = employee_data
-                self._save_json(self.employees_file, employees)
+                self.save_json(self.employees_file, employees)
                 return True
         
         return False
@@ -203,12 +203,12 @@ class DatabaseManager:
         Returns:
             True se removido com sucesso, False caso contrário
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         
         for i, employee in enumerate(employees):
             if employee.get('id') == employee_id:
                 employees.pop(i)
-                self._save_json(self.employees_file, employees)
+                self.save_json(self.employees_file, employees)
                 return True
         
         return False
@@ -223,7 +223,7 @@ class DatabaseManager:
         Returns:
             Lista de funcionários que correspondem à busca
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         query_lower = query.lower()
         
         results = []
@@ -246,7 +246,7 @@ class DatabaseManager:
         Returns:
             Lista de funcionários com o status especificado
         """
-        employees = self._load_json(self.employees_file)
+        employees = self.load_json(self.employees_file)
         
         return [emp for emp in employees if emp.get('status') == status]
     
@@ -264,7 +264,7 @@ class DatabaseManager:
         Returns:
             ID do afastamento criado
         """
-        absences = self._load_json(self.absences_file)
+        absences = self.load_json(self.afastamentos_file)
         
         # Gerar novo ID
         new_id = self._generate_id(absences)
@@ -276,7 +276,7 @@ class DatabaseManager:
         
         # Adicionar à lista e salvar
         absences.append(absence_data)
-        self._save_json(self.absences_file, absences)
+        sssself.save_json(self.afastamentos_file, absences)s)s)es)s)es)
         
         return new_id
     
@@ -290,7 +290,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do afastamento ou None se não encontrado
         """
-        absences = self._load_json(self.absences_file)
+        aaababsences = self.load_json(self.afastamentos_file))le)e)e)le)
         
         for absence in absences:
             if absence.get('id') == absence_id:
@@ -305,7 +305,7 @@ class DatabaseManager:
         Returns:
             Lista de dicionários com dados dos afastamentos
         """
-        return self._load_json(self.absences_file)
+        return self.load_json(self.afastamentos_file)
     
     def get_absences_by_employee(self, employee_id: int) -> List[Dict[str, Any]]:
         """
@@ -317,7 +317,7 @@ class DatabaseManager:
         Returns:
             Lista de afastamentos do funcionário
         """
-        absences = self._load_json(self.absences_file)
+        absences = self.load_json(self.afastamentos_file)
         
         return [abs for abs in absences if abs.get('employee_id') == employee_id]
     
@@ -332,7 +332,7 @@ class DatabaseManager:
         Returns:
             True se atualizado com sucesso, False caso contrário
         """
-        absences = self._load_json(self.absences_file)
+        absences = self.load_json(self.afastamentos_file)
         
         for i, absence in enumerate(absences):
             if absence.get('id') == absence_id:
@@ -343,7 +343,7 @@ class DatabaseManager:
                 
                 # Atualizar afastamento
                 absences[i] = absence_data
-                self._save_json(self.absences_file, absences)
+                self.save_json(self.afastamentos_file, absences)
                 return True
         
         return False
@@ -358,12 +358,12 @@ class DatabaseManager:
         Returns:
             True se removido com sucesso, False caso contrário
         """
-        absences = self._load_json(self.absences_file)
+        absaabsences = self.load_json(self.afastamentos_file)e)
         
         for i, absence in enumerate(absences):
             if absence.get('id') == absence_id:
                 absences.pop(i)
-                self._save_json(self.absences_file, absences)
+                selself.save_json(self.afastamentos_file, absences)es)
                 return True
         
         return False
@@ -375,7 +375,7 @@ class DatabaseManager:
         Returns:
             Lista de afastamentos ativos
         """
-        absences = self._load_json(self.absences_file)
+        absences = self.load_json(self.afastamentos_file)
         today = datetime.now().date()
         
         active = []
@@ -405,7 +405,7 @@ class DatabaseManager:
         Returns:
             Lista de afastamentos no período
         """
-        absences = self._load_json(self.absences_file)
+        absences = self.load_json(self.afastamentos_file)
         
         try:
             start = datetime.fromisoformat(start_date).date()
@@ -446,7 +446,7 @@ class DatabaseManager:
         Returns:
             ID do usuário criado
         """
-        users = self._load_json(self.users_file)
+        users = self.load_json(self.users_file)
         
         # Gerar novo ID
         new_id = self._generate_id(users)
@@ -458,7 +458,7 @@ class DatabaseManager:
         
         # Adicionar à lista e salvar
         users.append(user_data)
-        self._save_json(self.users_file, users)
+        self.save_json(self.users_file, users)
         
         return new_id
     
@@ -472,7 +472,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do usuário ou None se não encontrado
         """
-        users = self._load_json(self.users_file)
+        users = self.load_json(self.users_file)
         
         for user in users:
             if user.get('id') == user_id:
@@ -490,7 +490,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do usuário ou None se não encontrado
         """
-        users = self._load_json(self.users_file)
+        users = self.load_json(self.users_file)
         
         for user in users:
             if user.get('username') == username:
@@ -505,7 +505,7 @@ class DatabaseManager:
         Returns:
             Lista de dicionários com dados dos usuários
         """
-        return self._load_json(self.users_file)
+        return self.load_json(self.users_file)
     
     def update_user(self, user_id: int, user_data: Dict[str, Any]) -> bool:
         """
@@ -518,7 +518,7 @@ class DatabaseManager:
         Returns:
             True se atualizado com sucesso, False caso contrário
         """
-        users = self._load_json(self.users_file)
+        users = self.load_json(self.users_file)
         
         for i, user in enumerate(users):
             if user.get('id') == user_id:
@@ -529,7 +529,7 @@ class DatabaseManager:
                 
                 # Atualizar usuário
                 users[i] = user_data
-                self._save_json(self.users_file, users)
+                self.save_json(self.users_file, users)
                 return True
         
         return False
@@ -544,12 +544,12 @@ class DatabaseManager:
         Returns:
             True se removido com sucesso, False caso contrário
         """
-        users = self._load_json(self.users_file)
+        users = self.load_json(self.users_file)
         
         for i, user in enumerate(users):
             if user.get('id') == user_id:
                 users.pop(i)
-                self._save_json(self.users_file, users)
+                self.save_json(self.users_file, users)
                 return True
         
         return False
