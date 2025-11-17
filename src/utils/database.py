@@ -499,7 +499,7 @@ class DatabaseManager:
         
         return None
     
-    def buscar_usuario_por_username(self, username: str) -> Optional[Dict[str, Any]]:
+    def obter_usuario_por_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
         Busca um usuário por nome de usuário.
         
@@ -584,7 +584,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do usuário se válido, None caso contrário
         """
-        user = self.buscar_usuario_por_username(username)
+        user = self.obter_usuario_por_username(username)
         
         if user and user.get('password') == password:
             return user
