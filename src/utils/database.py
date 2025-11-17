@@ -1,3 +1,16 @@
+"""
+Módulo de gerenciamento de banco de dados JSON (Legado)
+
+Este módulo implementa a classe DatabaseManager que gerencia o armazenamento
+de dados em arquivos JSON para o sistema RH Control. É considerado legado e
+será eventualmente substituído pelo database_sql.py, mas mantém compatibilidade
+durante o período de transição.
+
+Autor: Sistema RH Control
+Data: 2024
+Versão: 1.0 (Legado)
+"""
+
 import json
 import os
 from datetime import datetime
@@ -22,7 +35,7 @@ class DatabaseManager:
     Attributes:
         data_dir (str): Diretório onde os arquivos JSON são armazenados
         employees_file (str): Caminho do arquivo de funcionários
-        absences_file (str): Caminho do arquivo de afastamentos
+        afastamentos_file (str): Caminho do arquivo de afastamentos (compatibilidade)
         users_file (str): Caminho do arquivo de usuários
     """
     
@@ -56,16 +69,16 @@ class DatabaseManager:
     def _initialize_files(self) -> None:
         """Inicializa os arquivos JSON com estruturas vazias se não existirem."""
         if not os.path.exists(self.employees_file):
-            self._save_json(self.employees_file, [])
+            self.save_json(self.employees_file, [])
         
-        if not os.path.exists(self.absences_file):
-            self._save_json(self.absences_file, [])
+        if not os.path.exists(self.afastamentos_file):
+            self.save_json(self.afastamentos_file, [])
         
         if not os.path.exists(self.users_file):
-            self._save_json(self.users_file, [])
+            self.save_json(self.users_file, [])
     
     # ========================================================================
-    # MÉTODOS AUXILIARES DE ARQUIVO
+    # MÉTODOS AUXILIARES DE ARQUIVO (PÚBLICOS PARA COMPATIBILIDADE)
     # ========================================================================
     
     def load_json(self, filepath: str) -> List[Dict[str, Any]]:
@@ -110,10 +123,10 @@ class DatabaseManager:
         return max(item.get('id', 0) for item in data) + 1
     
     # ========================================================================
-    # OPERAÇÕES CRUD - FUNCIONÁRIOS
+    # OPERAÇÕES CRUD - FUNCIONÁRIOS (Nomenclatura em Português)
     # ========================================================================
     
-    def add_employee(self, employee_data: Dict[str, Any]) -> int:
+    def adicionar_funcionario(self, employee_data: Dict[str, Any]) -> int:
         """
         Adiciona um novo funcionário ao banco de dados.
         
@@ -139,7 +152,7 @@ class DatabaseManager:
         
         return new_id
     
-    def get_employee(self, employee_id: int) -> Optional[Dict[str, Any]]:
+    def buscar_funcionario(self, employee_id: int) -> Optional[Dict[str, Any]]:
         """
         Busca um funcionário por ID.
         
@@ -157,16 +170,22 @@ class DatabaseManager:
         
         return None
     
-    def get_all_employees(self) -> List[Dict[str, Any]]:
+    def listar_funcionarios(self, apenas_ativos: bool = False) -> List[Dict[str, Any]]:
         """
-        Retorna todos os funcionários cadastrados.
+        Retorna todos os funcionários cadastrados, com opção de filtrar apenas ativos.
         
+        Args:
+            apenas_ativos: Se True, retorna apenas funcionários com status 'Ativo'.
+            
         Returns:
             Lista de dicionários com dados dos funcionários
         """
+        if apenas_ativos:
+            return self.buscar_funcionarios_por_status("Ativo")
+        
         return self.load_json(self.employees_file)
     
-    def update_employee(self, employee_id: int, employee_data: Dict[str, Any]) -> bool:
+    def atualizar_funcionario(self, employee_id: int, employee_data: Dict[str, Any]) -> bool:
         """
         Atualiza os dados de um funcionário.
         
@@ -193,7 +212,7 @@ class DatabaseManager:
         
         return False
     
-    def delete_employee(self, employee_id: int) -> bool:
+    def remover_funcionario(self, employee_id: int) -> bool:
         """
         Remove um funcionário do banco de dados.
         
@@ -213,7 +232,7 @@ class DatabaseManager:
         
         return False
     
-    def search_employees(self, query: str) -> List[Dict[str, Any]]:
+    def buscar_funcionarios(self, query: str) -> List[Dict[str, Any]]:
         """
         Busca funcionários por nome ou matrícula.
         
@@ -236,7 +255,7 @@ class DatabaseManager:
         
         return results
     
-    def get_employees_by_status(self, status: str) -> List[Dict[str, Any]]:
+    def buscar_funcionarios_por_status(self, status: str) -> List[Dict[str, Any]]:
         """
         Retorna funcionários filtrados por status.
         
@@ -251,10 +270,10 @@ class DatabaseManager:
         return [emp for emp in employees if emp.get('status') == status]
     
     # ========================================================================
-    # OPERAÇÕES CRUD - AFASTAMENTOS
+    # OPERAÇÕES CRUD - AFASTAMENTOS (Nomenclatura em Português)
     # ========================================================================
     
-    def add_absence(self, absence_data: Dict[str, Any]) -> int:
+    def adicionar_afastamento(self, absence_data: Dict[str, Any]) -> int:
         """
         Adiciona um novo afastamento ao banco de dados.
         
@@ -276,11 +295,11 @@ class DatabaseManager:
         
         # Adicionar à lista e salvar
         absences.append(absence_data)
-        sssself.save_json(self.afastamentos_file, absences)s)s)es)s)es)
+        self.save_json(self.afastamentos_file, absences)
         
         return new_id
     
-    def get_absence(self, absence_id: int) -> Optional[Dict[str, Any]]:
+    def buscar_afastamento(self, absence_id: int) -> Optional[Dict[str, Any]]:
         """
         Busca um afastamento por ID.
         
@@ -290,7 +309,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do afastamento ou None se não encontrado
         """
-        aaababsences = self.load_json(self.afastamentos_file))le)e)e)le)
+        absences = self.load_json(self.afastamentos_file)
         
         for absence in absences:
             if absence.get('id') == absence_id:
@@ -298,7 +317,7 @@ class DatabaseManager:
         
         return None
     
-    def get_all_absences(self) -> List[Dict[str, Any]]:
+    def listar_afastamentos(self) -> List[Dict[str, Any]]:
         """
         Retorna todos os afastamentos cadastrados.
         
@@ -307,7 +326,7 @@ class DatabaseManager:
         """
         return self.load_json(self.afastamentos_file)
     
-    def get_absences_by_employee(self, employee_id: int) -> List[Dict[str, Any]]:
+    def buscar_afastamentos_por_funcionario(self, employee_id: int) -> List[Dict[str, Any]]:
         """
         Retorna todos os afastamentos de um funcionário específico.
         
@@ -321,7 +340,7 @@ class DatabaseManager:
         
         return [abs for abs in absences if abs.get('employee_id') == employee_id]
     
-    def update_absence(self, absence_id: int, absence_data: Dict[str, Any]) -> bool:
+    def atualizar_afastamento(self, absence_id: int, absence_data: Dict[str, Any]) -> bool:
         """
         Atualiza os dados de um afastamento.
         
@@ -348,7 +367,7 @@ class DatabaseManager:
         
         return False
     
-    def delete_absence(self, absence_id: int) -> bool:
+    def remover_afastamento(self, absence_id: int) -> bool:
         """
         Remove um afastamento do banco de dados.
         
@@ -358,17 +377,17 @@ class DatabaseManager:
         Returns:
             True se removido com sucesso, False caso contrário
         """
-        absaabsences = self.load_json(self.afastamentos_file)e)
+        absences = self.load_json(self.afastamentos_file)
         
         for i, absence in enumerate(absences):
             if absence.get('id') == absence_id:
                 absences.pop(i)
-                selself.save_json(self.afastamentos_file, absences)es)
+                self.save_json(self.afastamentos_file, absences)
                 return True
         
         return False
     
-    def get_active_absences(self) -> List[Dict[str, Any]]:
+    def listar_afastamentos_ativos(self) -> List[Dict[str, Any]]:
         """
         Retorna todos os afastamentos ativos (não finalizados).
         
@@ -394,7 +413,7 @@ class DatabaseManager:
         
         return active
     
-    def get_absences_by_period(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
+    def buscar_afastamentos_por_periodo(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """
         Retorna afastamentos em um período específico.
         
@@ -433,10 +452,10 @@ class DatabaseManager:
         return results
     
     # ========================================================================
-    # OPERAÇÕES CRUD - USUÁRIOS
+    # OPERAÇÕES CRUD - USUÁRIOS (Nomenclatura em Português)
     # ========================================================================
     
-    def add_user(self, user_data: Dict[str, Any]) -> int:
+    def adicionar_usuario(self, user_data: Dict[str, Any]) -> int:
         """
         Adiciona um novo usuário ao banco de dados.
         
@@ -462,7 +481,7 @@ class DatabaseManager:
         
         return new_id
     
-    def get_user(self, user_id: int) -> Optional[Dict[str, Any]]:
+    def buscar_usuario(self, user_id: int) -> Optional[Dict[str, Any]]:
         """
         Busca um usuário por ID.
         
@@ -480,7 +499,7 @@ class DatabaseManager:
         
         return None
     
-    def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
+    def buscar_usuario_por_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
         Busca um usuário por nome de usuário.
         
@@ -498,7 +517,7 @@ class DatabaseManager:
         
         return None
     
-    def get_all_users(self) -> List[Dict[str, Any]]:
+    def listar_usuarios(self) -> List[Dict[str, Any]]:
         """
         Retorna todos os usuários cadastrados.
         
@@ -507,7 +526,7 @@ class DatabaseManager:
         """
         return self.load_json(self.users_file)
     
-    def update_user(self, user_id: int, user_data: Dict[str, Any]) -> bool:
+    def atualizar_usuario(self, user_id: int, user_data: Dict[str, Any]) -> bool:
         """
         Atualiza os dados de um usuário.
         
@@ -534,7 +553,7 @@ class DatabaseManager:
         
         return False
     
-    def delete_user(self, user_id: int) -> bool:
+    def remover_usuario(self, user_id: int) -> bool:
         """
         Remove um usuário do banco de dados.
         
@@ -554,7 +573,7 @@ class DatabaseManager:
         
         return False
     
-    def validate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
+    def validar_usuario(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """
         Valida credenciais de usuário.
         
@@ -565,7 +584,7 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do usuário se válido, None caso contrário
         """
-        user = self.get_user_by_username(username)
+        user = self.buscar_usuario_por_username(username)
         
         if user and user.get('password') == password:
             return user
@@ -573,10 +592,10 @@ class DatabaseManager:
         return None
     
     # ========================================================================
-    # MÉTODOS DE EXPORTAÇÃO
+    # MÉTODOS DE EXPORTAÇÃO (Nomenclatura em Português)
     # ========================================================================
     
-    def export_employees_to_excel(self, filepath: str) -> bool:
+    def exportar_funcionarios_para_excel(self, filepath: str) -> bool:
         """
         Exporta dados de funcionários para arquivo Excel.
         
@@ -587,7 +606,7 @@ class DatabaseManager:
             True se exportado com sucesso, False caso contrário
         """
         try:
-            employees = self.get_all_employees()
+            employees = self.listar_funcionarios()
             
             # Criar workbook
             wb = Workbook()
@@ -635,7 +654,7 @@ class DatabaseManager:
             print(f"Erro ao exportar funcionários: {e}")
             return False
     
-    def export_absences_to_excel(self, filepath: str) -> bool:
+    def exportar_afastamentos_para_excel(self, filepath: str) -> bool:
         """
         Exporta dados de afastamentos para arquivo Excel.
         
@@ -646,7 +665,7 @@ class DatabaseManager:
             True se exportado com sucesso, False caso contrário
         """
         try:
-            absences = self.get_all_absences()
+            absences = self.listar_afastamentos()
             
             # Criar workbook
             wb = Workbook()
@@ -693,18 +712,18 @@ class DatabaseManager:
             return False
     
     # ========================================================================
-    # MÉTODOS DE ESTATÍSTICAS E RELATÓRIOS
+    # MÉTODOS DE ESTATÍSTICAS E RELATÓRIOS (Nomenclatura em Português)
     # ========================================================================
     
-    def get_statistics(self) -> Dict[str, Any]:
+    def obter_estatisticas(self) -> Dict[str, Any]:
         """
         Retorna estatísticas gerais do sistema.
         
         Returns:
             Dicionário com estatísticas do sistema
         """
-        employees = self.get_all_employees()
-        absences = self.get_all_absences()
+        employees = self.listar_funcionarios()
+        absences = self.listar_afastamentos()
         
         # Contar funcionários por status
         status_count = {}
@@ -719,7 +738,7 @@ class DatabaseManager:
             absence_type_count[absence_type] = absence_type_count.get(absence_type, 0) + 1
         
         # Contar afastamentos ativos
-        active_absences = len(self.get_active_absences())
+        active_absences = len(self.listar_afastamentos_ativos())
         
         return {
             'total_employees': len(employees),
@@ -729,7 +748,7 @@ class DatabaseManager:
             'active_absences': active_absences
         }
     
-    def get_employee_with_absences(self, employee_id: int) -> Optional[Dict[str, Any]]:
+    def obter_funcionario_com_afastamentos(self, employee_id: int) -> Optional[Dict[str, Any]]:
         """
         Retorna dados completos de um funcionário incluindo seus afastamentos.
         
@@ -739,12 +758,12 @@ class DatabaseManager:
         Returns:
             Dicionário com dados do funcionário e lista de afastamentos
         """
-        employee = self.get_employee(employee_id)
+        employee = self.buscar_funcionario(employee_id)
         
         if not employee:
             return None
         
-        absences = self.get_absences_by_employee(employee_id)
+        absences = self.buscar_afastamentos_por_funcionario(employee_id)
         
         return {
             'employee': employee,
@@ -752,10 +771,10 @@ class DatabaseManager:
         }
     
     # ========================================================================
-    # MÉTODOS DE BACKUP E MANUTENÇÃO
+    # MÉTODOS DE BACKUP E MANUTENÇÃO (Nomenclatura em Português)
     # ========================================================================
     
-    def backup_data(self, backup_dir: str) -> bool:
+    def fazer_backup(self, backup_dir: str) -> bool:
         """
         Cria backup de todos os arquivos de dados.
         
@@ -779,7 +798,7 @@ class DatabaseManager:
             
             # Copiar arquivos
             shutil.copy2(self.employees_file, backup_subdir)
-            shutil.copy2(self.absences_file, backup_subdir)
+            shutil.copy2(self.afastamentos_file, backup_subdir)
             shutil.copy2(self.users_file, backup_subdir)
             
             return True
@@ -788,7 +807,7 @@ class DatabaseManager:
             print(f"Erro ao criar backup: {e}")
             return False
     
-    def restore_data(self, backup_dir: str) -> bool:
+    def restaurar_backup(self, backup_dir: str) -> bool:
         """
         Restaura dados de um backup.
         
@@ -811,7 +830,7 @@ class DatabaseManager:
             
             # Restaurar arquivos
             shutil.copy2(backup_employees, self.employees_file)
-            shutil.copy2(backup_absences, self.absences_file)
+            shutil.copy2(backup_absences, self.afastamentos_file)
             shutil.copy2(backup_users, self.users_file)
             
             return True
@@ -820,7 +839,7 @@ class DatabaseManager:
             print(f"Erro ao restaurar backup: {e}")
             return False
     
-    def clear_all_data(self) -> bool:
+    def limpar_todos_dados(self) -> bool:
         """
         Remove todos os dados do sistema (usar com cuidado).
         
@@ -828,9 +847,9 @@ class DatabaseManager:
             True se dados removidos com sucesso, False caso contrário
         """
         try:
-            self._save_json(self.employees_file, [])
-            self._save_json(self.absences_file, [])
-            self._save_json(self.users_file, [])
+            self.save_json(self.employees_file, [])
+            self.save_json(self.afastamentos_file, [])
+            self.save_json(self.users_file, [])
             return True
         except Exception as e:
             print(f"Erro ao limpar dados: {e}")
@@ -864,17 +883,17 @@ def migrate_to_sql(json_db: DatabaseManager, sql_db) -> bool:
     """
     try:
         # Migrar funcionários
-        employees = json_db.get_all_employees()
+        employees = json_db.listar_funcionarios()
         for employee in employees:
             sql_db.add_employee(employee)
         
         # Migrar afastamentos
-        absences = json_db.get_all_absences()
+        absences = json_db.listar_afastamentos()
         for absence in absences:
             sql_db.add_absence(absence)
         
         # Migrar usuários
-        users = json_db.get_all_users()
+        users = json_db.listar_usuarios()
         for user in users:
             sql_db.add_user(user)
         
@@ -895,12 +914,12 @@ if __name__ == "__main__":
     
     # Exemplo de uso
     print("=== Sistema RH Control - Database Manager (JSON) ===")
-    print(f"Total de funcionários: {len(db.get_all_employees())}")
-    print(f"Total de afastamentos: {len(db.get_all_absences())}")
-    print(f"Total de usuários: {len(db.get_all_users())}")
+    print(f"Total de funcionários: {len(db.listar_funcionarios())}")
+    print(f"Total de afastamentos: {len(db.listar_afastamentos())}")
+    print(f"Total de usuários: {len(db.listar_usuarios())}")
     
     # Exibir estatísticas
-    stats = db.get_statistics()
+    stats = db.obter_estatisticas()
     print("\n=== Estatísticas ===")
     print(f"Funcionários por status: {stats['employees_by_status']}")
     print(f"Afastamentos por tipo: {stats['absences_by_type']}")
