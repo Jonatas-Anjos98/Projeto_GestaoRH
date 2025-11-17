@@ -879,7 +879,7 @@ def migrate_to_sql(json_db: DatabaseManager, sql_db) -> bool:
         sql_db: Instância do DatabaseSQL
         
     Returns:
-        True se migração bem-sucedida, False caso contrário
+            True se migração bem-sucedida, False caso contrário
     """
     try:
         # Migrar funcionários
