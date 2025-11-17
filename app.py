@@ -192,7 +192,7 @@ elif menu == "👤 Funcionários":
             
             with col2:
                 endereco = st.text_area("Endereço *", key="novo_endereco", height=100)
-                loja = st.text_input("Loja *", key="novo_loja")
+                loja = st.text_input("Loja *", key="novo_loja") 
                 cargo = st.text_input("Cargo *", key="novo_cargo")
                 salario = st.number_input("Salário *", min_value=0.0, step=100.0, key="novo_salario")
             
